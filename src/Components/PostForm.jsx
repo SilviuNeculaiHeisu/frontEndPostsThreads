@@ -12,9 +12,21 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import nextId from "react-id-generator";
+
 import { illegalWords } from "../config.tsx";
 import { threads } from "../config.tsx";
 import FormCard from "./FormCard";
+import axios from "axios";
+import { updateThreads } from "../config.tsx";
+function generateRandom(maxLimit = 100) {
+  let rand = Math.random() * maxLimit;
+  console.log(rand); // say 99.81321410836433
+
+  rand = Math.floor(rand); // 99
+
+  return rand;
+}
 const PostForm = ({ threadTitleSelected, title }) => {
   const [category, setCategory] = React.useState("");
   const [selectedImage, setSelectedImage] = React.useState(null);
@@ -39,10 +51,8 @@ const PostForm = ({ threadTitleSelected, title }) => {
     setTotalPosts([]);
     threads.forEach((thread) => {
       if (thread.title == threadTitleSelected) {
-        thread.mockData.forEach((mock) => {
-          console.log(mock);
+        thread.posts.forEach((mock) => {
           setTotalPosts((posts) => [...posts, mock]);
-          console.log(totalPosts);
         });
       }
     });
@@ -52,7 +62,7 @@ const PostForm = ({ threadTitleSelected, title }) => {
     setIllegalWordPresent(false);
     illegalWords.forEach((illegalWord) => {
       let bodyCopy = body;
-      if (bodyCopy.includes(illegalWord.word)) {
+      if (bodyCopy.includes(illegalWord)) {
         setIllegalWordPresent(true);
         setDisplaySwitch((prev) => false);
         return;
@@ -64,17 +74,30 @@ const PostForm = ({ threadTitleSelected, title }) => {
 
     checkForIllegalWords();
     if (illegalWordPresent == false) {
-      console.log("Here");
       setDisplaySwitch(true);
     }
   };
   const submitData = () => {
     let post = {
-      name: title,
+      id: generateRandom(1000),
+      postTitle: title,
       category: category,
       postBody: body,
-      image: URL.createObjectURL(selectedImage),
+      image: URL.createObjectURL(selectedImage)
+        ? URL.createObjectURL(selectedImage)
+        : "",
     };
+
+    axios
+      .get(`http://localhost:8080/threads/getByName/${threadTitleSelected}`)
+      .then((response) => {
+        axios
+          .post(`http://localhost:8080/posts/${response.data}`, post)
+          .then((postResponse) => {
+            updateThreads();
+            getTasks();
+          });
+      });
   };
   return (
     <Grid container direction={"column"} spacing={5} ml={2} mt={4}>
@@ -82,7 +105,6 @@ const PostForm = ({ threadTitleSelected, title }) => {
         <form onSubmit={handleSubmitForm}>
           <Grid item>
             {" "}
-           
             <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-simple-select-standard-label">
                 Category
@@ -123,7 +145,6 @@ const PostForm = ({ threadTitleSelected, title }) => {
                 hidden
                 accept="image/*"
                 onChange={(event) => {
-                  console.log(event.target.files[0]);
                   setSelectedImage(event.target.files[0]);
                 }}
               />
@@ -162,7 +183,7 @@ const PostForm = ({ threadTitleSelected, title }) => {
                     flexWrap: "wrap",
                     "& > :not(style)": {
                       m: 1,
-                      width: 128,
+                      width: 150,
                       height: 128,
                     },
                   }}

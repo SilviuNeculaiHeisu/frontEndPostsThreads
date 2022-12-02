@@ -18,9 +18,9 @@ const FormCard = ({ category, postBody, image, postTitle }) => {
           <Box display={"flex"} justifyContent="flex-end">
             {category == "Question" ? (
               <QuestionMarkIcon />
-            ) : category == "suggestion" ? (
+            ) : category == "Suggestion" ? (
               <SpeakerIcon />
-            ) : category == "clarification" ? (
+            ) : category == "Clarification" ? (
               <ModeEditOutlineIcon />
             ) : (
               ""
@@ -36,7 +36,7 @@ const FormCard = ({ category, postBody, image, postTitle }) => {
         </Grid>
         <Grid item xs={12} md={12} mt={1}>
           <Box display={"flex"} justifyContent="center" alignItems="center">
-            {postBody}
+            <Typography variant="h6"> {postBody}</Typography>
           </Box>
         </Grid>
         <Grid item xs={12} md={12} mt={1}>

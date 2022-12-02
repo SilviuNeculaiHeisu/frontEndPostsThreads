@@ -13,11 +13,10 @@ const TitleSubmission = ({
   const checkTitle = () => {
     setIsTitleOk(true);
     threads.forEach((thread) => {
+      console.log(thread);
       if (thread.title === threadTitleSelected) {
-        thread.mockData.forEach((mock) => {
+        thread.posts.forEach((mock) => {
           if (mock.postTitle == title) {
-            console.log(mock.postTitle);
-            console.log(title);
             setIsTitleOk(false);
             return;
           }
